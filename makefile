@@ -34,7 +34,7 @@ SRCS += parse.cc
 
 OBJS = $(patsubst %.cc,$(buildprefix)/%.o,$(SRCS))
 
-LDFLAGS += -static
+# LDFLAGS += -static
 
 LDLIBS += -L ./vendor/fmt-8.1.1
 
@@ -51,7 +51,7 @@ all: $(buildprefix)/zade
 ARGS += -i foobar.zd
 
 run: $(buildprefix)/zade
-	$< $(ARGS)
+	LD_LIBRARY_PATH=./vendor/fmt-8.1.1 $< $(ARGS)
 
 valrun: $(buildprefix)/zade
 	valgrind $< $(ARGS)
