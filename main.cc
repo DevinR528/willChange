@@ -1,7 +1,7 @@
-// To use the fmt library as a header only library...
-#define FMT_HEADER_ONLY
 
-#include "./include/fmt-8.1.1/include/fmt/format.h"
+// vim: set tabstop=4 expandtab smarttab
+
+#include "fmt/format.h"
 #include "parse.h"
 
 #include <iostream>
@@ -11,7 +11,8 @@
 int main(int argc, char const* argv[]) {
     if (argc <= 1) {
         fmt::print(
-            "usage: zadec -i path/to/file.zd [-o out/file]\nfile: {}\n",
+            "usage: zadec -i path/to/file.zd [-o out/file]\n"
+            "file: {}\n",
             argv[0]);
         return 0;
     }
@@ -21,7 +22,9 @@ int main(int argc, char const* argv[]) {
         input = std::string(argv[2]);
     } else {
         fmt::print(
-            "expected input file\nusage: zadec -i path/to/file.zd [-o out/file]\nfound: {}\n",
+            "expected input file\n"
+            "usage: zadec -i path/to/file.zd [-o out/file]\n"
+            "found: {}\n",
             argv[1]);
         return 0;
     }

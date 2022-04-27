@@ -1,4 +1,7 @@
-.depend
+zade
 build/
 include/
+vendor
+https
+.depend
 .vscode
