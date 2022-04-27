@@ -66,13 +66,13 @@ https//%: | https/
 	@ mkdir -p "$(@D)"
 	wget --no-use-server-timestamps -O "$@" https://$*
 
-format:
-	clang-format -i --verbose $(SRCS)
-
 fetch: https//github.com/fmtlib/fmt/releases/download/8.1.1/fmt-8.1.1.zip | vendor/
 	unzip -o -qq $< -d $|
 	cd $|/fmt-8.1.1; cmake .
 	make -C $|/fmt-8.1.1 fmt/fast -j8
+
+format:
+	clang-format -i --verbose $(SRCS)
 
 .depend: $(SRCS)
 	$(CXX) $(CPPFLAGS) -MM $^ > .tmp-depend
