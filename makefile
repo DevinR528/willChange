@@ -21,13 +21,13 @@ CXXFLAGS += -O2
 CXXFLAGS += -flto
 else
 CPPFLAGS += -D DEBUGGING
-endif
-
-buildprefix ?= build/$(buildtype)
 
 CXXFLAGS += -g
 CXXFLAGS += -Wno-unused-variable
 CXXFLAGS += -Wno-unused-function
+endif
+
+buildprefix ?= build/$(buildtype)
 
 SRCS += main.cc
 SRCS += parse.cc
