@@ -3,7 +3,7 @@ CC ?= gcc
 CXX ?= g++
 #CXX ?= clang++
 
-buildtype ?= debug
+buildtype ?= release
 
 # CPPFLAGS += -I .
 # CPPFLAGS += -D _GNU_SOURCE
@@ -23,6 +23,8 @@ else
 CPPFLAGS += -D DEBUGGING
 endif
 
+buildprefix ?= build/$(buildtype)
+
 CXXFLAGS += -g
 CXXFLAGS += -Wno-unused-variable
 CXXFLAGS += -Wno-unused-function
@@ -30,14 +32,16 @@ CXXFLAGS += -Wno-unused-function
 SRCS += main.cc
 SRCS += parse.cc
 
-OBJS = $(patsubst %.cc,build/$(buildtype)/%.o,$(SRCS))
+OBJS = $(patsubst %.cc,$(buildprefix)/%.o,$(SRCS))
+
+LDFLAGS += -static
 
 LDLIBS += -L ./vendor/fmt-8.1.1
 
 LDLIBS += -lfmt
 LDLIBS += -lstdc++
 
-all: build/zade
+all: $(buildprefix)/zade
 
 .PRECIOUS: %/
 
@@ -46,16 +50,16 @@ all: build/zade
 
 ARGS += -i foobar.zd
 
-run: build/zade
+run: $(buildprefix)/zade
 	$< $(ARGS)
 
-valrun: build/zade
+valrun: $(buildprefix)/zade
 	valgrind $< $(ARGS)
 
-build/zade: $(OBJS)
+$(buildprefix)/zade: $(OBJS)
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-build/$(buildtype)/%.o: %.cc | build/$(buildtype)/%/
+$(buildprefix)/%.o: %.cc | $(buildprefix)/%/
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 https//%: | https/
@@ -67,7 +71,7 @@ format:
 
 fetch: https//github.com/fmtlib/fmt/releases/download/8.1.1/fmt-8.1.1.zip | vendor/
 	unzip -o -qq $< -d $|
-	cd $|/fmt-8.1.1; cmake -D BUILD_SHARED_LIBS=TRUE
+	cd $|/fmt-8.1.1; cmake .
 	make -C $|/fmt-8.1.1 fmt/fast -j8
 
 .depend: $(SRCS)
@@ -78,7 +82,7 @@ clean:
 	rm -rf build zade
 
 distclean: clean
-	for l in $$(cat .gitignore); do rm -rvf $$l; done
+	for l in $$(cat .gitignore); do rm -rf $$l; done
 
 ifneq "$(MAKECMDGOALS)" "fetch"
 include .depend
