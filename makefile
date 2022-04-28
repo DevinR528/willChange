@@ -30,7 +30,7 @@ endif
 buildprefix ?= build/$(buildtype)
 
 SRCS += main.cc
-SRCS += parse.cc
+SRCS += lex.cc
 
 OBJS = $(patsubst %.cc,$(buildprefix)/%.o,$(SRCS))
 

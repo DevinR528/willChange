@@ -2,8 +2,9 @@
 // vim: set tabstop=4 expandtab smarttab
 
 #include "fmt/format.h"
-#include "parse.h"
+#include "lex.h"
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -32,6 +33,7 @@ int main(int argc, char const* argv[]) {
     auto tok = zade::tokenizer(input);
 
     fmt::print("bout to parse this '{}'\n", tok.content());
+    fmt::print("bout to parse this '{}'\n", std::filesystem::current_path().string());
 
     return 0;
 }
