@@ -19,6 +19,8 @@ CPPFLAGS += -D RELEASE
 
 CXXFLAGS += -O2
 CXXFLAGS += -flto
+
+LDFLAGS += -static
 else
 CPPFLAGS += -D DEBUGGING
 
@@ -33,8 +35,6 @@ SRCS += main.cc
 SRCS += parse.cc
 
 OBJS = $(patsubst %.cc,$(buildprefix)/%.o,$(SRCS))
-
-# LDFLAGS += -static
 
 LDLIBS += -L ./vendor/fmt-8.1.1
 
@@ -51,7 +51,7 @@ all: $(buildprefix)/zade
 ARGS += -i foobar.zd
 
 run: $(buildprefix)/zade
-	LD_LIBRARY_PATH=./vendor/fmt-8.1.1 $< $(ARGS)
+	$< $(ARGS)
 
 valrun: $(buildprefix)/zade
 	valgrind $< $(ARGS)
@@ -81,7 +81,7 @@ format:
 clean:
 	rm -rf build zade
 
-distclean: clean
+distclean:
 	for l in $$(cat .gitignore); do rm -rf $$l; done
 
 ifneq "$(MAKECMDGOALS)" "fetch"
