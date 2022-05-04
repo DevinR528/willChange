@@ -1,4 +1,6 @@
 #pragma once
 
+#include <fmt/core.h>
+
 #define TODO(msg) \
-    static_assert(false, "TODO: " msg); exit(1)
+	FMT_ASSERT(false, "TODO: " msg); exit(1)
