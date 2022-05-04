@@ -21,10 +21,10 @@ std::string_view Tokenizer::content() noexcept { return this->m_str_slice; }
 Result<uint32_t, std::string> Tokenizer::test_res() {
 	void* ptr = std::malloc(8);
 	intptr_t num = reinterpret_cast<intptr_t>(ptr);
-	if (num % 2 == 0) {
-		return Result{3};
+	if (num % 3 == 0) {
+		return 3;
 	} else {
-		return Result{std::string("failure...")};
+		return std::string("failure...");
 	}
 }
 

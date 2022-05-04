@@ -31,6 +31,8 @@ int main(int argc, char const* argv[]) {
 	}
 
 	auto tok = zade::Tokenizer(input);
+	auto res = tok.test_res();
+	fmt::print("Result: {}\n", res ? std::to_string(res.value()) : res.error());
 
 	fmt::print("bout to parse this '{}'\n", tok.content());
 	fmt::print("bout to parse this '{}'\n", std::filesystem::current_path().string());

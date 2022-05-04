@@ -1,7 +1,7 @@
 
 CC ?= gcc
-# CXX ?= g++
-CXX = clang++
+CXX ?= g++
+# CXX = clang++
 
 buildtype ?= release
 

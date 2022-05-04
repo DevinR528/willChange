@@ -100,7 +100,7 @@ union TokenInfo {
 	TokenInfo() = default;
 	TokenInfo(CommentKind comment) : comments(comment) {}
 	TokenInfo(Base num_base) : int_base(num_base) {}
-	~TokenInfo();
+	~TokenInfo() {}
 };
 struct Token {
   private:
@@ -110,7 +110,10 @@ struct Token {
 
   public:
 	Token(TokenKind k, size_t len) : kind(k), len(len) {}
-	Token(TokenKind k, size_t len, CommentKind comment) : kind(k), len(len), info(comment) {}
+	Token(TokenKind k, size_t len, CommentKind comment) :
+		kind(k),
+		len(len),
+		info(comment) {}
 	TokenKind tkn_kind() { return this->kind; }
 	size_t tkn_len() { return this->len; }
 	~Token() {}
@@ -132,12 +135,14 @@ class Tokenizer {
 	std::optional<Token> numeric_lit();
 	std::optional<Token> char_lit();
 	std::optional<Token> string_lit();
-	Result<uint32_t, std::string> test_res();
 
   public:
-	Tokenizer(std::string_view str)  : m_str_slice{str} {}
+	Tokenizer(std::string_view str) : m_str_slice{str} {}
 	std::string_view content() noexcept;
 	std::vector<Token> lex_input();
+
+	Result<uint32_t, std::string> test_res();
+
 	~Tokenizer() {}
 };
 }  // namespace zade
