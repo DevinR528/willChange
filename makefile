@@ -48,13 +48,13 @@ all: $(buildprefix)/zade
 %/:
 	@ mkdir -p $@
 
-ARGS += -i foobar.zd
+ARGS += -i test_in/foobar.zd
 
 run: $(buildprefix)/zade
 	$< $(ARGS)
 
 valrun: $(buildprefix)/zade
-	valgrind $< $(ARGS)
+	valgrind --gen-suppressions=yes --suppressions=./stl-val.supp --track-origins=yes --keep-debuginfo=yes $< $(ARGS)
 
 $(buildprefix)/zade: $(OBJS)
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
