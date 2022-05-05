@@ -19,21 +19,35 @@ struct Result {
 	std::variant<OkVal, ErrVal> m_value;
 
   public:
-	Result() = default;
-	Result(const Result& res) = default;
-	Result(Result&& res) = default;
+	// Remove the default constructor, no null `Result`s cus what does that mean.
+	Result() = delete;
+
+	// Copy constructor, memcpy the value in this `Result` could be error or success.
+	Result(const Result& res) :
+		m_has_value(res.m_has_value)
+	{
+		fmt::print("Copy ctor used\n");
+		memcpy(m_value, res.m_value, sizeof(std::variant<OkVal, ErrVal>));
+	}
+
+	// Move constructor, move a temporary (rvalue) into the new `Result`
+	Result(Result&& res) :
+		m_has_value(res.m_has_value),
+		m_value(res.m_value)
+	{
+		fmt::print("Move ctor used\n");
+	}
+
 
 	template<class ...Args, enable_if_t<std::is_constructible<OkVal, Args&&...>::value>* = nullptr>
 	Result(Args&&... args) :
 		m_has_value(true),
 		m_value(std::variant<OkVal, ErrVal>(std::forward<Args>(args)...)) {
-			fmt::print("OkVal from Args... pack\n");
 		}
 	template<class ...Args, enable_if_t<std::is_constructible<ErrVal, Args&&...>::value>* = nullptr>
 	Result(Args&&... args) :
 		m_has_value(false),
 		m_value(std::variant<OkVal, ErrVal>(std::forward<Args>(args)...)) {
-			fmt::print("OkVal from Init List and Args... pack\n");
 		}
 
 	template<class U, class ...Args, enable_if_t<std::is_constructible<OkVal, std::initializer_list<U> &, Args&&...>::value>* = nullptr>
