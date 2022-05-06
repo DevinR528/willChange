@@ -11,7 +11,7 @@
 
 int main(int argc, char const* argv[]) {
 	if (argc <= 1) {
-		print("usage: ", argv[0], "-i path/to/file.zd [-o out/file]");
+		zade::print("usage: ", argv[0], "-i path/to/file.zd [-o out/file]");
 
 		return 0;
 	}
@@ -26,7 +26,7 @@ int main(int argc, char const* argv[]) {
 			file.close();
 		}
 	} else {
-		print(
+		zade::print(
 			"expected input file\n"
 			"usage: zadec -i path/to/file.zd [-o out/file]\n"
 			"found: ",
@@ -37,18 +37,16 @@ int main(int argc, char const* argv[]) {
 
 	auto tok = zade::tokenizer(input);
 
-	print(tok.content());
+	zade::print(tok.content());
 
 #ifdef DEBUGGING
 	auto res = tok.lex_input();
 	if (res) {
 		for (auto&& tkn : res.value()) {
-			//			assert(!"TODO");
-			print(tkn);
-			// fmt::print("{}\n", tkn);
+			zade::print(tkn);
 		}
 	} else {
-		print("error: {}\n", res.error());
+		zade::print("error: ", res.error());
 	}
 #endif
 

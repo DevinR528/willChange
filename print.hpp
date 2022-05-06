@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <vector>
 
+namespace zade {
+
 inline void print(bool newln = true) {
 	if (newln) std::cout << "\n";
 }
@@ -101,3 +103,5 @@ template<class T> inline
 		std::cout << #x << " == "; \
 		print(x); \
 	}
+
+}  // namespace zade

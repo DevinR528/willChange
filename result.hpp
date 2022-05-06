@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "print.hpp"
+
 #include <assert.h>
 #include <functional>
 #include <type_traits>
@@ -25,7 +27,7 @@ template<class OkVal, class ErrVal> struct result {
 	// Copy constructor, memcpy the value in this `result` could be error or success.
 	result(const result& res) : m_has_value(res.m_has_value) {
 #ifdef DEBUGGING
-		print("Copy ctor used");
+		zade::print("Copy ctor used");
 #endif
 		memcpy(m_value, res.m_value, sizeof(std::variant<OkVal, ErrVal>));
 	}
@@ -33,7 +35,7 @@ template<class OkVal, class ErrVal> struct result {
 	// Move constructor, move a temporary (rvalue) into the new `result`
 	result(result&& res) : m_has_value(res.m_has_value), m_value(res.m_value) {
 #ifdef DEBUGGING
-		print("Move ctor used");
+		zade::print("Move ctor used");
 #endif
 	}
 
