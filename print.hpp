@@ -5,8 +5,22 @@
 #include <vector>
 #include <type_traits>
 
+void print(bool newln = true) {
+	if (newln) std::cout << "\n";
+}
+
 void print(bool x, bool newln = true) {
 	std::cout << (x ? "true" : "false");
+	if (newln) std::cout << "\n";
+}
+
+void print(char* x, bool newln = true) {
+	std::cout << x;
+	if (newln) std::cout << "\n";
+}
+
+void print(const char* x, bool newln = true) {
+	std::cout << x;
 	if (newln) std::cout << "\n";
 }
 
@@ -26,6 +40,11 @@ void print(double x, bool newln = true) {
 }
 
 void print(std::string value, bool newln = true) {
+	std::cout << value << "\n";
+	if (newln) std::cout << "\n";
+}
+
+void print(std::string_view value, bool newln = true) {
 	std::cout << value << "\n";
 	if (newln) std::cout << "\n";
 }
@@ -63,6 +82,12 @@ template<std::size_t I = 0, typename... Tp> inline typename std::enable_if<I  < 
 	if (!I && newln) std::cout << "\n";
 }
 
+template<typename F, typename S, typename... Tp> inline void print(F x, S y, Tp... t)
+{
+	print(x, false);
+	print(y, t...);
+}
+
 template<class T> inline typename std::enable_if<std::is_member_function_pointer<decltype(&T::str)>::value, void>::type print(T& t, bool newln = true)
 {
 	std::cout << t.str();
@@ -70,40 +95,6 @@ template<class T> inline typename std::enable_if<std::is_member_function_pointer
 }
 
 #define dprint(x) { std::cout << #x << " == "; print(x); }
-
-struct point {
-	int x, y;
-	
-	public: point(int x, int y): x(x), y(y) {
-	}
-	
-	std::string str() {
-		return "point(x = " + std::to_string(x) + ", y = " + std::to_string(y) + ")";
-	}
-};
-
-int main()
-{
-	int x = 3;
-	print(x);
-	
-	print(3 + 4);
-	
-	double y = 3.3;
-	print(y);
-	
-	std::vector<int> array = {1, 2, 3};
-	print(array);
-	
-	std::tuple<int, float, bool> array2 = std::make_tuple(1, 2.3, true);
-	print(array2);
-	
-	struct point p = point(3, 4);
-	
-	dprint(p);
-	
-	return 0;
-}
 
 
 

@@ -75,7 +75,8 @@ Result<Token, std::string> Tokenizer::comment() noexcept {
 	} else if (*this->m_str_slice.begin() == '*') {
 		auto token = Token{COMMENT, 1, CommentKind::MULTI_LINE};
 
-		TODO("Multi line comments\n");
+		assert(!"TODO");
+		// TODO("Multi line comments\n");
 	} else {
 		return std::string("invalid comment");
 	}
@@ -273,7 +274,7 @@ Result<std::vector<Token>, std::string> Tokenizer::lex_input() noexcept {
 	return this->m_tkns;
 }
 
-}  // namespace zade
+}
 
 
 
