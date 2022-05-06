@@ -1,8 +1,9 @@
 AccessModifierOffset: -2
-AlignAfterOpenBracket: AlwaysBreak
 
 #  this is an open PR in clang-format it will work one day
 # AlignAfterOpenBracket: BlockIndent
+AlignAfterOpenBracket: AlwaysBreak
+
 
 AlignConsecutiveMacros: false
 AlignConsecutiveAssignments: false
@@ -21,7 +22,7 @@ AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
-AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: No
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: NonAssignment
@@ -30,7 +31,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 BreakStringLiterals: false
-ColumnLimit: 90
+ColumnLimit: 100
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
@@ -44,6 +45,7 @@ IndentCaseLabels: true
 IndentPPDirectives: BeforeHash
 IndentWidth: 4
 IndentWrappedFunctionNames: false
+InsertTrailingCommas: Wrapped
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: Inner
@@ -60,6 +62,7 @@ SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: false
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
+SpacesInAngles: false
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
 SpacesInAngles: false

@@ -46,7 +46,7 @@ all: $(buildprefix)/zade
 	@ mkdir -p $@
 
 build/srclist.mk: | build/
-	find -name '*.cc' | sed 's/^/srcs += /' > $@
+	find -name '*.cpp' | sed 's/^/srcs += /' > $@
 
 include build/srclist.mk
 
@@ -58,25 +58,25 @@ run: $(buildprefix)/zade
 valrun: $(buildprefix)/zade
 	valgrind --gen-suppressions=yes --suppressions=./stl-val.supp --track-origins=yes --keep-debuginfo=yes $< $(ARGS)
 
-$(buildprefix)/zade: $(patsubst %.cc,$(buildprefix)/%.o,$(srcs))
+$(buildprefix)/zade: $(patsubst %.cpp,$(buildprefix)/%.o,$(srcs))
 	@ echo "linking $@"
 	@ $(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-$(buildprefix)/%.o $(buildprefix)/%.d: %.cc | $(buildprefix)/%/
+$(buildprefix)/%.o $(buildprefix)/%.d: %.cpp | $(buildprefix)/%/
 	@ echo "compiling $<"
 	@ $(CC) -c $(CPPFLAGS) $(CXXFLAGS) $< -MD -o $(buildprefix)/$*.o $(ON_ERROR)
 
 format:
-	find -name '*.cc' -o -name '*.hpp' | xargs -d \\n clang-format -i --verbose
+	find -name '*.cpp' -o -name '*.hpp' | xargs -d \\n clang-format-11 -i --verbose
 
 clean:
 	rm -rf build zade
 
 distclean: clean
-	for l in $$(cat .gitignore); do rm -rf $$l; done
+	for l in $$(cat .gitignore); do if [ $$l != ".vscode" ]; then rm -rf $$l; fi done
 
 ifneq "$(MAKECMDGOALS)" "fetch"
-include $(patsubst %.cc,$(buildprefix)/%.d,$(srcs))
+include $(patsubst %.cpp,$(buildprefix)/%.d,$(srcs))
 endif
 
 
