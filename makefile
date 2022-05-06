@@ -1,15 +1,10 @@
 
 CC ?= gcc
-CXX ?= g++
-# CXX = clang++
 
 buildtype ?= release
 
-# CPPFLAGS += -I .
-# CPPFLAGS += -D _GNU_SOURCE
-
-#CPPFLAGS += -D FMT_HEADER_ONLY
-CPPFLAGS += -I ./vendor/fmt-8.1.1/include
+CPPFLAGS += -Wfatal-errors
+CPPFLAGS += -I .
 
 CXXFLAGS += -Wall -Werror
 CXXFLAGS += -std=c++2a
@@ -27,18 +22,20 @@ CXXFLAGS += -Wno-unused-variable
 CXXFLAGS += -Wno-unused-function
 endif
 
-buildprefix ?= build/$(buildtype)
+on_error ?= do_nothing
 
-SRCS += main.cc
-SRCS += lex.cc
+ifeq ($(on_error), do_nothing)
+ON_ERROR =
+else ifeq ($(on_error), open_editor)
+ON_ERROR += || ($$EDITOR $<; false)
+else
+$(error "invalid on_error option!");
+endif
 
-OBJS = $(patsubst %.cc,$(buildprefix)/%.o,$(SRCS))
+buildprefix ?= build/cc-$(CC)/$(buildtype)
 
 LDFLAGS += -static
 
-LDLIBS += -L ./vendor/fmt-8.1.1
-
-LDLIBS += -lfmt
 LDLIBS += -lstdc++
 
 all: $(buildprefix)/zade
@@ -48,6 +45,11 @@ all: $(buildprefix)/zade
 %/:
 	@ mkdir -p $@
 
+build/srclist.mk: | build/
+	find -name '*.cc' | sed 's/^/srcs += /' > $@
+
+include build/srclist.mk
+
 ARGS += -i test_in/foobar.zd
 
 run: $(buildprefix)/zade
@@ -56,27 +58,16 @@ run: $(buildprefix)/zade
 valrun: $(buildprefix)/zade
 	valgrind --gen-suppressions=yes --suppressions=./stl-val.supp --track-origins=yes --keep-debuginfo=yes $< $(ARGS)
 
-$(buildprefix)/zade: $(OBJS)
-	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+$(buildprefix)/zade: $(patsubst %.cc,$(buildprefix)/%.o,$(srcs))
+	@ echo "linking $@"
+	@ $(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-$(buildprefix)/%.o: %.cc | $(buildprefix)/%/
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
-
-https//%: | https/
-	@ mkdir -p "$(@D)"
-	wget --no-use-server-timestamps -O "$@" https://$*
-
-fetch: https//github.com/fmtlib/fmt/releases/download/8.1.1/fmt-8.1.1.zip | vendor/
-	unzip -o -qq $< -d $|
-	cd $|/fmt-8.1.1; cmake .
-	make -C $|/fmt-8.1.1 fmt/fast -j8
+$(buildprefix)/%.o $(buildprefix)/%.d: %.cc | $(buildprefix)/%/
+	@ echo "compiling $<"
+	@ $(CC) -c $(CPPFLAGS) $(CXXFLAGS) $< -MD -o $(buildprefix)/$*.o $(ON_ERROR)
 
 format:
-	clang-format -i --verbose $(SRCS)
-
-.depend: $(SRCS)
-	$(CXX) $(CPPFLAGS) -MM $^ > .tmp-depend
-	@ mv .tmp-depend $@
+	find -name '*.cc' -o -name '*.hpp' | xargs -d \\n clang-format -i --verbose
 
 clean:
 	rm -rf build zade
@@ -85,10 +76,8 @@ distclean: clean
 	for l in $$(cat .gitignore); do rm -rf $$l; done
 
 ifneq "$(MAKECMDGOALS)" "fetch"
-include .depend
+include $(patsubst %.cc,$(buildprefix)/%.d,$(srcs))
 endif
-
-
 
 
 

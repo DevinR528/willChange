@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "debug.hpp"
-#include "result.hpp"
+#include <result.hpp>
 
 #include <fmt/format.h>
 #include <optional>
@@ -88,6 +87,18 @@ enum TokenKind {
 	UNKNOWN,
 };
 
+#ifdef DEBUGGING
+const static char* TOKEN_NAMES[] = {
+	"COMMENT",	  "INT_LIT",	 "FLOAT_LIT",	 "CHAR_LIT",	  "STR_LIT",
+	"SEMI",		  "COMMA",		 "DOT",			 "OPEN_PAREN",	  "CLOSE_PAREN",
+	"OPEN_BRACE", "CLOSE_BRACE", "OPEN_BRACKET", "CLOSE_BRACKET", "AT",
+	"POUND",	  "TILDE",		 "QUESTION",	 "COLON",		  "DOLLAR",
+	"EQ",		  "BANG",		 "LESS",		 "GREAT",		  "MINUS",
+	"AND",		  "PIPE",		 "PLUS",		 "STAR",		  "CARET",
+	"PERCENT",	  "WHITESPACE",	 "IDENT",		 "_EOF",		  "UNKNOWN",
+};
+#endif
+
 enum CommentKind { MULTI_LINE, SINGLE_LINE };
 enum Base {
 	// 0b
@@ -166,7 +177,7 @@ struct fmt::formatter<zade::Token> {
 	// char presentation = 'f';
 	constexpr auto parse(fmt::format_parse_context& ctx) -> decltype(ctx.begin()) {
 		// Parse the presentation format and store it in the formatter:
-		auto it = ctx.begin(), end = ctx.end();
+		auto it = ctx.begin(); // , end = ctx.end();
 		return it;
 	}
 
@@ -175,7 +186,7 @@ struct fmt::formatter<zade::Token> {
 		return format_to(
 			ctx.out(),
 			"Token({}, {})",
-			TOKEN_NAMES[tkn.tkn_kind()],
+			zade::TOKEN_NAMES[tkn.tkn_kind()],
 			tkn.tkn_len());
 	}
 };

@@ -140,15 +140,15 @@ Result<Token, std::string> Tokenizer::next_tkn() noexcept {
 		case '"':
 			return this->string_lit();
 		// One-symbol tokens.
-		case ';':{
+		case ';': {
 			if (!this->eat().has_value()) return std::string("expected semicolon");
 			return Token{SEMI, 1};
 		}
-		case ',':{
+		case ',': {
 			if (!this->eat().has_value()) return std::string("expected comma");
 			return Token{COMMA, 1};
 		}
-		case '.':{
+		case '.': {
 			if (!this->eat().has_value()) return std::string("expected dot");
 			return Token{DOT, 1};
 		}
@@ -157,90 +157,94 @@ Result<Token, std::string> Tokenizer::next_tkn() noexcept {
 			return Token{OPEN_PAREN, 1};
 		}
 		case ')': {
-			if (!this->eat().has_value()) return std::string("expected close parenthesis");
+			if (!this->eat().has_value())
+				return std::string("expected close parenthesis");
 			return Token{CLOSE_PAREN, 1};
 		}
 		case '{': {
 			if (!this->eat().has_value()) return std::string("expected open brace");
 			return Token{OPEN_BRACE, 1};
 		}
-		case '}':{
+		case '}': {
 			if (!this->eat().has_value()) return std::string("expected close brace");
 			return Token{CLOSE_BRACE, 1};
 		}
-		case '[':{
+		case '[': {
 			if (!this->eat().has_value()) return std::string("expected open bracket");
 			return Token{OPEN_BRACKET, 1};
 		}
-		case ']':{
+		case ']': {
 			if (!this->eat().has_value()) return std::string("expected close bracket");
 			return Token{CLOSE_BRACKET, 1};
 		}
-		case '@':{
+		case '@': {
 			if (!this->eat().has_value()) return std::string("expected at");
 			return Token{AT, 1};
 		}
-		case '#':{
+		case '#': {
 			if (!this->eat().has_value()) return std::string("expected hash");
 			return Token{POUND, 1};
 		}
-		case '~':{
+		case '~': {
 			if (!this->eat().has_value()) return std::string("expected tilde");
 			return Token{TILDE, 1};
 		}
-		case '?':{
+		case '?': {
 			if (!this->eat().has_value()) return std::string("expected question mark");
 			return Token{QUESTION, 1};
 		}
-		case ':':{
+		case ':': {
 			if (!this->eat().has_value()) return std::string("expected colon");
 			return Token{COLON, 1};
 		}
-		case '$':{
+		case '$': {
 			if (!this->eat().has_value()) return std::string("expected dollar");
 			return Token{DOLLAR, 1};
 		}
-		case '=':{
+		case '=': {
 			if (!this->eat().has_value()) return std::string("expected equal");
 			return Token{EQ, 1};
 		}
-		case '!':{
-			if (!this->eat().has_value()) return std::string("expected exclamation point");
+		case '!': {
+			if (!this->eat().has_value())
+				return std::string("expected exclamation point");
 			return Token{BANG, 1};
 		}
-		case '<':{
-			if (!this->eat().has_value()) return std::string("expected open angle bracket");
+		case '<': {
+			if (!this->eat().has_value())
+				return std::string("expected open angle bracket");
 			return Token{LESS, 1};
 		}
-		case '>':{
-			if (!this->eat().has_value()) return std::string("expected close angle bracket");
+		case '>': {
+			if (!this->eat().has_value())
+				return std::string("expected close angle bracket");
 			return Token{GREAT, 1};
 		}
-		case '-':{
+		case '-': {
 			if (!this->eat().has_value()) return std::string("expected minus");
 			return Token{MINUS, 1};
 		}
-		case '&':{
+		case '&': {
 			if (!this->eat().has_value()) return std::string("expected ampresand");
 			return Token{AND, 1};
 		}
-		case '|':{
+		case '|': {
 			if (!this->eat().has_value()) return std::string("expected pipe");
 			return Token{PIPE, 1};
 		}
-		case '+':{
+		case '+': {
 			if (!this->eat().has_value()) return std::string("expected plus");
 			return Token{PLUS, 1};
 		}
-		case '*':{
+		case '*': {
 			if (!this->eat().has_value()) return std::string("expected star");
 			return Token{STAR, 1};
 		}
-		case '^':{
+		case '^': {
 			if (!this->eat().has_value()) return std::string("expected caret");
 			return Token{CARET, 1};
 		}
-		case '%':{
+		case '%': {
 			if (!this->eat().has_value()) return std::string("expected percent");
 			return Token{PERCENT, 1};
 		}
@@ -270,3 +274,17 @@ Result<std::vector<Token>, std::string> Tokenizer::lex_input() noexcept {
 }
 
 }  // namespace zade
+
+
+
+
+
+
+
+
+
+
+
+
+
+
