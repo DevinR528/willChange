@@ -1,6 +1,4 @@
 
-## To install and run
+## To build and run
 
 `make run`
-will, after `make fetch`, compile and run the program
-
