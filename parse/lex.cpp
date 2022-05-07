@@ -3,8 +3,8 @@
 
 #include "lex.hpp"
 
-#include "macros.hpp"
-#include "result.hpp"
+#include "../macros.hpp"
+#include "../result.hpp"
 
 #include <cctype>
 #include <memory>
@@ -49,31 +49,84 @@ std::optional<char> tokenizer::eat() noexcept {
 	return ch;
 }
 
+std::optional<char> tokenizer::peek_nth(size_t idx = 0) noexcept {
+	if (this->m_str_slice.size() <= idx) return std::optional<size_t>{};
+	return this->m_str_slice[idx];
+}
+
 std::optional<size_t> tokenizer::eat_while(std::function<bool(char)> func) noexcept {
-	size_t res = 0;
+	size_t count = 0;
 	while (func(*this->m_str_slice.begin())) {
-		res += 1;
+		count += 1;
 		auto eaten = this->eat();
 		if (!eaten.has_value()) break;
 	}
-	return res == 0 ? std::optional<size_t>{} : res;
+	return count == 0 ? std::optional<size_t>{} : count;
+}
+
+std::optional<size_t> tokenizer::eat_decimal_digits() noexcept {
+	auto curr = this->peek_nth(0);
+	size_t count = 0;
+	while (curr.has_value()) {
+		if (!(('0' <= curr && curr <= '9') || curr == '_')) { break; }
+		this->eat();
+		count += 1;
+		curr = this->peek_nth(0);
+	}
+	return count == 0 ? std::optional<size_t>{} : count;
+}
+
+std::optional<size_t> tokenizer::eat_hex_digits() noexcept {
+	auto curr = this->peek_nth(0);
+	auto count = 0;
+	while (curr.has_value()) {
+		switch (curr.value()) {
+			case '0' ... '9':
+			case 'a' ... 'f':
+			case 'A' ... 'F':
+			case '_': {
+				this->eat();
+				count += 1;
+				curr = this->peek_nth(0);
+				continue;
+			}
+			default:
+				goto break_loop;
+		}
+	}
+break_loop:;
+
+	// TODO: confirm
+	// we want to return non here since an empty number isn't really a number
+	return (count > 0) ? count : std::optional<size_t>{};
+}
+
+std::optional<size_t> tokenizer::eat_float_expo() noexcept {
+	auto curr = this->peek_nth(0);
+	size_t count = 0;
+	if (curr.has_value()) {
+		this->eat();
+		count += 1;
+	}
+	return (OPT_TRY(this->eat_decimal_digits()) + count);
 }
 
 result<token, std::string> tokenizer::comment() noexcept {
-	// eat first '/', this is why all `token`s have 1 len already
-	auto is_ok = this->eat();
-	if (!is_ok) return std::string("malformed comment");
+	// eat first '/', and eat then keep the 2nd, this is why all `token`s have 2 len already
+	OPT_TRY_ERR(this->eat(), std::string("malformed comment"));
+	auto next = OPT_TRY_ERR(this->eat(), std::string("invalid comment"));
 
-	if (*this->m_str_slice.begin() == '/') {
-		auto tkn = token{COMMENT, 1, comment_kind::SINGLE_LINE};
+	if (next == '/') {
+		auto tkn = token{COMMENT, 2, comment_kind::SINGLE_LINE};
 
-		auto line = this->eat_while([](char ch) -> bool { return ch != '\n'; });
-		if (!line.has_value()) return std::string("malformed comment");
+		auto line = OPT_TRY_ERR(
+			this->eat_while([](char ch) -> bool { return ch != '\n'; }),
+			std::string("malformed comment"));
 
-		tkn.add_len(line.value());
+		tkn.add_len(line);
 		return tkn;
-	} else if (*this->m_str_slice.begin() == '*') {
-		auto tkn = token{COMMENT, 1, comment_kind::MULTI_LINE};
+	} else if (next == '*') {
+		auto tkn = token{COMMENT, 2, comment_kind::MULTI_LINE};
 
 		TODO("Multi line comments\n");
 	} else {
@@ -83,38 +136,158 @@ result<token, std::string> tokenizer::comment() noexcept {
 
 result<token, std::string> tokenizer::whitespace() noexcept {
 	auto tkn = token{WHITESPACE, 0};
-
-	auto ws = this->eat_while(is_whitespace);
-	if (!ws.has_value()) return std::string("found EOF in whitespace...");
-
-	tkn.add_len(ws.value());
+	// We know we peeked at least one whitespace char so this will return at least 1
+	auto ws =
+		OPT_TRY_ERR(this->eat_while(is_whitespace), std::string("found EOF in whitespace..."));
+	tkn.add_len(ws);
 	return tkn;
 }
 
 result<token, std::string> tokenizer::identifier() noexcept {
 	auto tkn = token{IDENT, 0};
+	// We know we peeked at least one ident char so this will return at least 1
+	auto ws = OPT_TRY_ERR(this->eat_while(is_identifier), std::string("found EOF in ident..."));
 
-	auto ws = this->eat_while(is_identifier);
-	if (!ws) return std::string("found EOF in ident...");
-
-	tkn.add_len(ws.value());
+	tkn.add_len(ws);
 	return tkn;
 }
 
+// A numeric literal, one of `1`, `1.1`, `0xff`, `1e10` and a few others maybe.
 result<token, std::string> tokenizer::numeric_lit() noexcept {
-	TODO("still trucking... numeric_lit\n");
+	// Eat the token we just peeked we know it was a 0...9
+	auto curr = this->eat();
+
+	auto base = DEC;
+	size_t eaten = 1;
+
+	if (curr == '0') {
+		auto next = OPT_TRY_ERR(this->peek_nth(0), std::string("just a zero and EOF??"));
+		switch (next) {
+			// Bin
+			case 'b': {
+				base = BIN;
+				this->eat();
+				eaten += 1;
+				auto count = OPT_TRY_ERR(
+					this->eat_decimal_digits(),
+					// This is most likely an error, it would be
+					// `0 b EOF` so not sure why that would ever be legit
+					(token{INT_LIT, eaten, base}));
+				eaten += count;
+				break;
+			}
+			// Octal
+			case 'o': {
+				base = OCTAL;
+				this->eat();
+				eaten += 1;
+				auto count = OPT_TRY_ERR(
+					this->eat_decimal_digits(),
+					// This is most likely an error, it would be
+					// `0 o EOF` so not sure why that would ever be legit
+					(token{INT_LIT, eaten, base}));
+				eaten += count;
+				break;
+			}
+			// Hex
+			case 'x': {
+				base = HEX;
+				this->eat();
+				eaten += 1;
+				auto count = OPT_TRY_ERR(
+					this->eat_hex_digits(),
+					// This is most likely an error, it would be
+					// `0 x EOF` so not sure why that would ever be legit
+					(token{INT_LIT, eaten, base}));
+				eaten += count;
+				break;
+			}
+			// Leading 0
+			case '0' ... '9':
+			case '_':
+			case '.':
+			case 'e':
+			case 'E': {
+				this->eat();
+				eaten += 1;
+				auto count = OPT_TRY_ERR(
+					this->eat_decimal_digits(),
+					// This is most likely an error, it would be
+					// `0 x EOF` so not sure why that would ever be legit
+					(token{INT_LIT, eaten, base}));
+				eaten += count;
+				break;
+			}
+			// Just a 0
+			default:
+				return token{INT_LIT, eaten, base};
+		}
+	} else {
+		auto count = OPT_TRY_ERR(this->eat_decimal_digits(), std::string("empty numeric lit"));
+		eaten += count;
+	}
+
+	auto peek = OPT_TRY_ERR(this->peek_nth(0), (token{INT_LIT, eaten, base}));
+	switch (peek) {
+		case '.': {
+			auto peek2 = OPT_TRY_ERR(this->peek_nth(1), std::string("decimal then EOF"));
+			// TODO: do we want `12.method()` or ranges `0..10`?
+			if ('0' <= peek2 || peek2 <= '9' || peek2 == '_') {
+				// eat decimal point
+				this->eat();
+				eaten += 1;
+				auto count = OPT_TRY_ERR(
+					this->eat_decimal_digits(),
+					std::string("empty portion after decimal point"));
+				eaten += count;
+				auto after_decimal = this->peek_nth(0);
+				if ((after_decimal.has_value() && after_decimal.value() == 'e')
+					|| after_decimal.value() == 'E') {
+					this->eat();
+					eaten += 1;
+					auto expo_count = OPT_TRY_ERR(
+						this->eat_float_expo(),
+						std::string("no exponent after `e` or `E`"));
+					eaten += expo_count;
+				}
+			}
+			return token{FLOAT_LIT, eaten, base};
+		}
+		case 'e':
+		case 'E': {
+			this->eat();
+			eaten += 1;
+			auto count = OPT_TRY_ERR(this->eat_decimal_digits(), std::string("empty exponent lit"));
+			eaten += count;
+			return token{FLOAT_LIT, eaten, base};
+		}
+		default:
+			return token{INT_LIT, eaten, base};
+	}
 }
 
+// A character literal, one of 'a' or '\n'
 result<token, std::string> tokenizer::char_lit() noexcept { TODO("still trucking... char_lit\n"); }
+
+// A byte literal `b'x';`
+result<token, std::string> tokenizer::byte_char() noexcept {
+	TODO("still trucking... byte_char\n");
+}
+// A byte string literal `b"bits";`
+result<token, std::string> tokenizer::byte_str() noexcept { TODO("still trucking... byte_str\n"); }
+// A raw string, this continues until the correct sequence is repeated.
+// TODO: we could do something like `r#"this is "STILL" this string"#;`
+result<token, std::string> tokenizer::raw_str() noexcept { TODO("still trucking... raw_str\n"); }
 
 result<token, std::string> tokenizer::string_lit() noexcept {
 	TODO("still trucking... string_lit\n");
 }
 
 result<token, std::string> tokenizer::next_tkn() noexcept {
-	if (this->m_str_slice.empty()) return token{_EOF, 0};
+	// Next or return End-Of-File
+	auto peeked = OPT_TRY_ERR(this->peek_nth(0), (token{_EOF, 0}));
 
-	switch (*this->m_str_slice.begin()) {
+	switch (peeked) {
 		case '/':
 			return this->comment();
 		case ' ':
@@ -124,15 +297,24 @@ result<token, std::string> tokenizer::next_tkn() noexcept {
 		case '\t':
 		case '\v':
 			return this->whitespace();
+		// Add emoji's and stuff?
 		case 'a' ... 'z':
 		case 'A' ... 'Z':
-		case '_':  // Add emoji's and stuff?
-			return this->identifier();
+		case '_': {
+			auto peek = this->peek_nth(0);
+			auto peek2 = this->peek_nth(1);
+
+			if (peek == 'b' && peek2 == '\'')
+				return this->byte_char();
+			else if (peek == 'b' && peek2 == '"')
+				return this->byte_str();
+			else if (peek == 'r' && peek2 == '"')
+				return this->raw_str();
+			else
+				return this->identifier();
+		}
 		case '0' ... '9':
 			return this->numeric_lit();
-		// TODO:
-		// check for byte literals?
-		// other special characters maybe?
 		case '\'':
 			return this->char_lit();
 		case '"':
@@ -248,7 +430,6 @@ result<token, std::string> tokenizer::next_tkn() noexcept {
 }
 
 result<std::vector<token>, std::string> tokenizer::lex_input() noexcept {
-	// This uses an overload `explicit operator bool()` for std::optional
 	while (true) {
 		auto curr_tkn = this->next_tkn();
 		if (curr_tkn.has_value()) {
