@@ -67,12 +67,34 @@ $(buildprefix)/%.o $(buildprefix)/%.d: %.cpp | $(buildprefix)/%/
 	@ $(CC) -c $(CPPFLAGS) $(CXXFLAGS) $< -MD -o $(buildprefix)/$*.o $(ON_ERROR)
 
 format:
-	find -name '*.cpp' -o -name '*.hpp' | xargs -d \\n clang-format-11 -i --verbose
+	find -name '*.cpp' -o -name '*.hpp' | xargs -d \\n clang-format -i --verbose
+
+# for make-check this is what clang-tidy depends on to check all files of project
+$(buildprefix)/%.cmpdb_entry: $(srcs)
+	@ echo "	{" > $@
+	@ echo "		\"command\": \"cc $(CPPFLAGS) $(CXXFLAGS) -c $*.cpp\"," >> $@
+	@ echo "		\"directory\": \"$(CURDIR)\"," >> $@
+	@ echo "		\"file\": \"$*.cpp\"" >> $@
+	@ echo "	}," >> $@
+
+COMPDB_ENTRIES = $(patsubst %.cpp, $(buildprefix)/%.cmpdb_entry, $(srcs))
+
+compile_commands.json: $(COMPDB_ENTRIES)
+	@ echo "[" > $@.tmp
+	@ cat $^ >> $@.tmp
+	@ sed '$$d' < $@.tmp > $@
+	@ echo "	}" >> $@
+	@ echo "]" >> $@
+	@ rm $@.tmp
+
+check: compile_commands.json
+	find -name '*.cpp' -o -name '*.hpp' | xargs -d \\n clang-tidy  --warnings-as-errors=*
 
 clean:
-	rm -rf build zade
+	rm -rf build zade compile_commands.json
 
 distclean: clean
+	# Let me keep my vscode project level config
 	for l in $$(cat .gitignore); do if [ $$l != ".vscode" ]; then rm -rf $$l; fi done
 
 ifneq "$(MAKECMDGOALS)" "fetch"
