@@ -148,17 +148,23 @@ struct token {
 	token() : kind(UNKNOWN), len(0) {}
 	token(token_kind k, size_t len) : kind{k}, len{len} {}
 	token(token_kind k, size_t len, token_info info) : kind{k}, len{len}, info{info} {}
+	~token() {}
 
+	// Get
 	token_kind tkn_kind() const& { return this->kind; }
 	size_t tkn_len() const& { return this->len; }
+	// Set
+	void add_len(size_t add) { this->len += add; }
 
 	std::optional<comment_kind> comment_info() const& { return this->info.comment(); }
 	std::optional<numeric_base_kind> num_base_info() const& { return this->info.base(); }
 
-	void add_len(size_t add) { this->len += add; }
+
+	friend bool operator==(const token& lhs, const token& rhs) { return lhs.len == rhs.len && lhs.kind == rhs.kind; }
+	friend bool operator!=(const token& lhs, const token& rhs) { return !(lhs == rhs); }
 
 #ifdef DEBUGGING
-	std::string str() {
+	std::string str() const& {
 		std::string info;
 		switch (tkn_kind()) {
 			case INT_LIT:
@@ -179,17 +185,13 @@ struct token {
 			+ info + ")";
 	}
 #endif
-
-	~token() {}
 };
 
 // The lexer/tokenizer that turns input text into a `vector<token>`.
 class tokenizer {
-	using none = std::optional<token>;
-
   private:
 	std::string_view m_str_slice;
-	std::string_view m_str_slice_orig;
+	const std::string_view m_str_slice_orig;
 	std::vector<token> m_tkns{};
 
 	std::optional<char> peek_nth(size_t) noexcept;
@@ -213,9 +215,14 @@ class tokenizer {
 
   public:
 	tokenizer(std::string_view str) : m_str_slice{str}, m_str_slice_orig{str} {}
-	std::string_view content() noexcept { return this->m_str_slice_orig; };
+	~tokenizer() {}
+
+	const std::string_view content() noexcept { return this->m_str_slice_orig; };
 	result<std::vector<token>, std::string> lex_input() noexcept;
 
-	~tokenizer() {}
+#ifdef DEBUGGING
+	const std::vector<token>& tokens() const& { return this->m_tkns; }
+#endif
 };
+
 }  // namespace zade

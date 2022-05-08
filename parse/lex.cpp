@@ -29,10 +29,14 @@ bool is_whitespace(char ch) noexcept {
 	}
 }
 
+// As long as this is only called after the switch `tokenizer::next_tkn`
+// we are guaranteed that the first char is a non numeric, it is legal for
+// the following char's until whitespace to be any alpha-numeric char.
 bool is_identifier(char ch) noexcept {
 	switch (ch) {
 		case 'a' ... 'z':
 		case 'A' ... 'Z':
+		case '0' ... '9':
 		case '_':  // Add emoji's and stuff?
 			return true;
 		default:
@@ -273,7 +277,7 @@ result<token, std::string> tokenizer::char_lit() noexcept { TODO("still trucking
 result<token, std::string> tokenizer::byte_char() noexcept {
 	TODO("still trucking... byte_char\n");
 }
-// A byte string literal `b"bits";`
+// A byte string literal `b"bits";` == and array of bytes so `[]uint8`
 result<token, std::string> tokenizer::byte_str() noexcept { TODO("still trucking... byte_str\n"); }
 // A raw string, this continues until the correct sequence is repeated.
 // TODO: we could do something like `r#"this is "STILL" this string"#;`

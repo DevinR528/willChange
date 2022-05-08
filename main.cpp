@@ -36,7 +36,6 @@ auto main(int argc, char const* argv[]) -> int {
 	}
 
 	auto tok = zade::tokenizer(input);
-
 	zade::print(tok.content());
 
 #ifdef DEBUGGING
@@ -46,6 +45,9 @@ auto main(int argc, char const* argv[]) -> int {
 			zade::print(tkn);
 		}
 	} else {
+		for (auto&& tkn : tok.tokens()) {
+			zade::print(tkn);
+		}
 		zade::print("error: ", res.error());
 	}
 #endif
