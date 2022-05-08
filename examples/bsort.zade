@@ -54,7 +54,7 @@ void fflush(restrict struct stream* stream)
 
 unsigned strlen(const char* s)
 {
-	for (const char* o = s; *s++; );
+	for (const char* o = s; *s; s++);
 	return s - o;
 }
 
@@ -84,11 +84,11 @@ void int::print(int i, @end = "\n")
 	fputs(end);
 }
 
-void print<bool> = bool::print;
+void print<bool>() = bool::print;
 
-void print<int> = int::print;
+void print<int>() = int::print;
 
-void print<const char*> = fputs;
+void print<const char*>() = fputs;
 
 void print<T[n] has print(const T)>(T[n] array, @end = "\n")
 {
