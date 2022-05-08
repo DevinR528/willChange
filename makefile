@@ -52,7 +52,7 @@ build/srclist.mk: | build/
 
 include build/srclist.mk
 
-ARGS += -i test_in/foobar.zd
+ARGS += -i examples/helloworld.zade
 
 run: $(buildprefix)/zade
 	$< $(ARGS)
@@ -72,7 +72,7 @@ format:
 	find -name '*.cpp' -o -name '*.hpp' | xargs -d \\n clang-format -i --verbose
 
 clean:
-	rm -rf build zade compile_commands.json
+	rm -rf build zade
 
 distclean: clean
 	# Let me keep my vscode project level config
