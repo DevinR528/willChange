@@ -3,8 +3,8 @@ syscall ssize_t write(int fd, void* buf, size_t size);
 
 struct stream {
 	int fd;
-	char buff[1024];
 	unsigned i;
+	char buff[1024];
 };
 
 int int::compare(const int a, const int b)
@@ -70,16 +70,18 @@ void fputs(const char* string)
 	fwrite(&stdout, string, strlen(string));
 }
 
-void bool::print(bool x)
+void bool::print(bool x, @end = "\n")
 {
 	fputs(&stdout, b ? "true" : "false");
+	fputs(end);
 }
 
-void int::print(int i)
+void int::print(int i, @end = "\n")
 {
 	char printme = '0' + i % 10;
 	if (i /= 10) int::print(i);
 	putchar(printme);
+	fputs(end);
 }
 
 void print<bool> = bool::print;
@@ -88,27 +90,31 @@ void print<int> = int::print;
 
 void print<const char*> = fputs;
 
-void print<T[n] has print(const T)>(T[n] array)
+void print<T[n] has print(const T)>(T[n] array, @end = "\n")
 {
 	unsigned i;
 	for (i = 0; i < n; i++)
 	{
-		print(array[i]);
+		print(array[i], @end = "");
 		
 		if (i + 1 < n)
 			fputs(", ");
 	}
+	
+	fputs(end);
 }
 
-void print<T has print(const T), S, ... Z>(T x, S y, ... z, @sep = " ")
+void print<T has print(const T), S, ... Z>(T x, S y, ... z, @sep = " ", @end = "\n")
 {
-	T::print(x);
+	T::print(x, @end = "");
 	
 	if (len(Z) > 0)
 	{
 		fputs(sep);
-		print(y, ... z, @sep = sep);
+		print(y, ... z, @sep = sep, @end = "");
 	}
+	
+	fputs(end);
 }
 
 unsigned bsort <T has int compare(const T*, const T*)> (T* array, unsigned n)
