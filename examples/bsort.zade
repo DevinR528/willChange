@@ -31,25 +31,26 @@ void copy<T>(restrict T* dst, restrict const T* src, unsigned n)
 
 void fwrite(restrict struct stream* stream, restrict const char* buf, size_t size)
 {
-	while (size)
+	for (unsigned delta; size; stream.i += delta, buf += delta, size -= delta)
 	{
 		if (stream.i == len(stream.buf))
 		{
 			fflush(stream);
 		}
 		
-		unsigned delta = min(size, len(stream.buff) - stream.i);
+		delta = min(size, len(stream.buff) - stream.i);
 		
 		copy(&stream.buff[stream.i], buf, delta);
-		
-		stream.i += delta, buf += delta, size -= delta;
 	}
 }
 
 void fflush(restrict struct stream* stream)
 {
-	write(stream.fd, stream.buf, stream.i);
-	stream.i = 0;
+	if (stream.i)
+	{
+		write(stream.fd, stream.buf, stream.i);
+		stream.i = 0;
+	}
 }
 
 unsigned strlen(const char* s)
