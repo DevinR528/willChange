@@ -60,9 +60,14 @@ unsigned strlen(const char* s)
 
 struct stream stdout = { .fd = 1 };
 
+void putchar(char c)
+{
+	fwrite(&stdout, &c, 1);
+}
+
 void fputs(const char* string)
 {
-	fwrite(stream, string, strlen(string));
+	fwrite(&stdout, string, strlen(string));
 }
 
 void bool::print(bool x)
