@@ -1,12 +1,14 @@
 
+# vim: set tabstop=4 smarttab
+
 CC ?= gcc
 
 buildtype ?= release
 
-CPPFLAGS += -Wfatal-errors
+#CPPFLAGS += -Wfatal-errors
 CPPFLAGS += -I .
 
-CXXFLAGS += -Wall -Werror
+CXXFLAGS += -Wall -Wextra -Werror
 CXXFLAGS += -std=c++2a
 
 ifeq ($(buildtype), release)
@@ -68,27 +70,6 @@ $(buildprefix)/%.o $(buildprefix)/%.d: %.cpp | $(buildprefix)/%/
 
 format:
 	find -name '*.cpp' -o -name '*.hpp' | xargs -d \\n clang-format -i --verbose
-
-# for make-check this is what clang-tidy depends on to check all files of project
-$(buildprefix)/%.cmpdb_entry: $(srcs)
-	@ echo "	{" > $@
-	@ echo "		\"command\": \"cc $(CPPFLAGS) $(CXXFLAGS) -c $*.cpp\"," >> $@
-	@ echo "		\"directory\": \"$(CURDIR)\"," >> $@
-	@ echo "		\"file\": \"$*.cpp\"" >> $@
-	@ echo "	}," >> $@
-
-COMPDB_ENTRIES = $(patsubst %.cpp, $(buildprefix)/%.cmpdb_entry, $(srcs))
-
-compile_commands.json: $(COMPDB_ENTRIES)
-	@ echo "[" > $@.tmp
-	@ cat $^ >> $@.tmp
-	@ sed '$$d' < $@.tmp > $@
-	@ echo "	}" >> $@
-	@ echo "]" >> $@
-	@ rm $@.tmp
-
-check: compile_commands.json
-	find -name '*.cpp' -o -name '*.hpp' | xargs -d \\n clang-tidy  --warnings-as-errors=*
 
 clean:
 	rm -rf build zade compile_commands.json

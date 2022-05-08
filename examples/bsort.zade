@@ -1,0 +1,168 @@
+
+syscall ssize_t write(int fd, void* buf, size_t size);
+
+struct stream {
+	int fd;
+	char buff[1024];
+	unsigned i;
+};
+
+int int::compare(const int a, const int b)
+{
+	int A = *a, B = *B;
+	
+	if (A > B)
+		return +1;
+	else if (A < B)
+		return -1;
+	else
+		return 0;
+}
+
+T min<T has int compare(const T, const T)>(const T a, const T b)
+{
+	return T::compare(a, b) < 0 ? a : b;
+}
+
+void copy<T>(restrict T* dst, restrict const T* src, unsigned n)
+{
+	while (n--) *dst++ = *src++;
+}
+
+void fwrite(restrict struct stream* stream, restrict const char* buf, size_t size)
+{
+	while (size)
+	{
+		if (stream.i == len(stream.buf))
+		{
+			fflush(stream);
+		}
+		
+		unsigned delta = min(size, len(stream.buff) - stream.i);
+		
+		copy(&stream.buff[stream.i], buf, delta);
+		
+		stream.i += delta, buf += delta, size -= delta;
+	}
+}
+
+void fflush(restrict struct stream* stream)
+{
+	write(stream.fd, stream.buf, stream.i);
+	stream.i = 0;
+}
+
+unsigned strlen(const char* s)
+{
+	for (const char* o = s; *s++; );
+	return s - o;
+}
+
+struct stream stdout = { .fd = 1 };
+
+void fputs(const char* string)
+{
+	fwrite(stream, string, strlen(string));
+}
+
+void bool::print(bool x)
+{
+	fputs(&stdout, b ? "true" : "false");
+}
+
+void int::print(int i)
+{
+	char printme = '0' + i % 10;
+	if (i /= 10) int::print(i);
+	putchar(printme);
+}
+
+void print<bool> = bool::print;
+
+void print<int> = int::print;
+
+void print<const char*> = fputs;
+
+void print<T[n] has print(const T)>(T[n] array)
+{
+	unsigned i;
+	for (i = 0; i < n; i++)
+	{
+		print(array[i]);
+		
+		if (i + 1 < n)
+			fputs(", ");
+	}
+}
+
+void print<T has print(const T), S, ... Z>(T x, S y, ... z, @sep = " ")
+{
+	T::print(x);
+	
+	if (len(Z) > 0)
+	{
+		fputs(sep);
+		print(y, ... z, @sep = sep);
+	}
+}
+
+unsigned bsort <T has int compare(const T*, const T*)> (T* array, unsigned n)
+{
+	T swap;
+	bool changed;
+	unsigned i, swaps = 0;
+	
+	do for (i = 0, changed = false; i < n; i++) {
+		if (T::compare(&array[i + 1], &array[i]) < 0) {
+			swap = array[i + 1];
+			array[i + 1] = array[i];
+			array[i] = swap;
+			changed = true, swaps++;
+		}
+	} while (changed);
+	
+	return swaps;
+}
+
+struct A
+{
+	int a, b;
+};
+
+int struct A::compare(const struct A* a, const struct A* b)
+{
+	return a->a - b->a ?: a->b - b->b;
+}
+
+void struct A::print(const struct A* self);
+{
+	print("<struct A> {", self->a, ", ", self->b, "}");
+}
+
+int main()
+{
+	struct A[] array = {{5, 6}, {1, 2}, {2, 3}, {1, 4}, {2, 1}};
+	
+	unsigned swaps = bsort(array, len(array));
+	
+	print(array);
+	
+	print("sorted in ", swaps, " swaps.");
+	
+	fflush(&stdout);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

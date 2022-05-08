@@ -1,5 +1,5 @@
 
-// vim: set tabstop=4 expandtab smarttab
+// vim: set tabstop=4 smarttab
 
 #pragma once
 

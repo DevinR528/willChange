@@ -4,12 +4,12 @@
 #include "parse/lex.hpp"
 #include "print.hpp"
 
+#include <cstring>
 #include <fstream>
-#include <string.h>
 
 #define strequals(a, b) (!(strcmp(a, b)))
 
-int main(int argc, char const* argv[]) {
+auto main(int argc, char const* argv[]) -> int {
 	if (argc <= 1) {
 		zade::print("usage: ", argv[0], "-i path/to/file.zd [-o out/file]");
 
