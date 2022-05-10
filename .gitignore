@@ -1,12 +1,5 @@
 build/
-include/
-vendor
-https
-.depend
-
-# clang-tidy compilation commands database file
-compile_commands.json
-
 .vscode/
 # Some dumb vscode thing  (that clearly should be in the .vscode folder but is not)
 null.d
+junk/

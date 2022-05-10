@@ -9,7 +9,7 @@ fn main() {
 */
 // /**/
 // /* //*/ //
-//     ^^ this is and error, need a space otherwise it is read as another multi-line comment
+//     ^^ this is an error, need a space otherwise it is read as another multi-line comment
    /*// */ // this is ok
 
 	foobar<thing>(x, y);

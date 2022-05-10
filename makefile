@@ -5,7 +5,7 @@ CC ?= gcc
 
 buildtype ?= release
 
-#CPPFLAGS += -Wfatal-errors
+CPPFLAGS += -Wfatal-errors
 CPPFLAGS += -I .
 
 CXXFLAGS += -Wall -Wextra -Werror
@@ -16,12 +16,15 @@ CPPFLAGS += -D RELEASE
 
 CXXFLAGS += -O2
 CXXFLAGS += -flto
+
+LDFLAGS += -static
 else
 CPPFLAGS += -D DEBUGGING
 CXXFLAGS += -O0
 CXXFLAGS += -g
 CXXFLAGS += -Wno-unused-variable
 CXXFLAGS += -Wno-unused-function
+CXXFLAGS += -Wno-unused-parameter
 endif
 
 on_error ?= do_nothing
@@ -36,8 +39,6 @@ endif
 
 buildprefix ?= build/cc-$(CC)/$(buildtype)
 
-LDFLAGS += -static
-
 LDLIBS += -lstdc++
 
 all: $(buildprefix)/zade
@@ -48,7 +49,7 @@ all: $(buildprefix)/zade
 	@ mkdir -p $@
 
 build/srclist.mk: | build/
-	find -name '*.cpp' | sed 's/^/srcs += /' > $@
+	find -name '*.cpp' ! -path '*/junk/*' | sed 's/^/srcs += /' > $@
 
 include build/srclist.mk
 

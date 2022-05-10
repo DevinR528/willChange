@@ -20,6 +20,11 @@ inline void print(bool x, bool newln = true) {
 	if (newln) std::cout << "\n";
 }
 
+inline void print(char x, bool newln = true) {
+	std::cout << "'" << x << "'";
+	if (newln) std::cout << "\n";
+}
+
 inline void print(char* x, bool newln = true) {
 	std::cout << x;
 	if (newln) std::cout << "\n";
