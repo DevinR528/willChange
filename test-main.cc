@@ -34,6 +34,10 @@ struct test {
 	std::vector<zade::token> expected;
 
 	test(std::string input, std::vector<zade::token> expected) : input(input), expected(expected) {}
+	test(std::string input, std::vector<zade::token> expected, bool should_fail) :
+		input(input),
+		expected(expected),
+		should_fail(should_fail) {}
 };
 
 const test tests[] = {

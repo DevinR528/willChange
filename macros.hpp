@@ -14,7 +14,7 @@
 		res.value(); \
 	})
 
-#define OPT_TRY_ERR(expr, fail) \
+#define OPT_TRY_OR(expr, fail) \
 	({ \
 		auto res = (expr); \
 		if (!res.has_value()) return (fail); \

@@ -36,7 +36,7 @@ auto main(int argc, char const* argv[]) -> int {
 	}
 
 	auto tok = zade::tokenizer(input);
-	zade::print(tok.content());
+	// zade::print(tok.content());
 
 #ifdef DEBUGGING
 	auto res = tok.lex_input();
@@ -45,10 +45,13 @@ auto main(int argc, char const* argv[]) -> int {
 			zade::print(tkn);
 		}
 	} else {
+		size_t cnt = 0;
 		for (auto&& tkn : tok.tokens()) {
+			cnt += tkn.len();
 			zade::print(tkn);
 		}
-		zade::print("error: ", res.error());
+		zade::print("\nerror: ", res.error());
+		zade::print("at: ", tok.content().substr(cnt - 5, 20));
 	}
 #endif
 

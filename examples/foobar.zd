@@ -1,8 +1,18 @@
 // hello
 fn main() {
-	100;
-	0b1010;
-	0o8345;
-	0xabcf91;
+	int x = 100;
+	int y = 0xabcf91;
+
+/*
+	this is another kind of comment
+	/* and it has /*nested*/ comments */
+*/
+// /**/
+// /* //*/ //
+//     ^^ this is and error, need a space otherwise it is read as another multi-line comment
+   /*// */ // this is ok
+
+	foobar<thing>(x, y);
+	return 1 / 0b10;
 }
 

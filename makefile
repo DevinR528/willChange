@@ -18,7 +18,7 @@ CXXFLAGS += -O2
 CXXFLAGS += -flto
 else
 CPPFLAGS += -D DEBUGGING
-
+CXXFLAGS += -O0
 CXXFLAGS += -g
 CXXFLAGS += -Wno-unused-variable
 CXXFLAGS += -Wno-unused-function
@@ -52,7 +52,7 @@ build/srclist.mk: | build/
 
 include build/srclist.mk
 
-ARGS += -i examples/helloworld.zade
+ARGS += -i examples/foobar.zd
 
 run: $(buildprefix)/zade
 	$< $(ARGS)

@@ -71,6 +71,8 @@ enum token_kind {
 	PLUS,
 	// *
 	STAR,
+	// "/""
+	SLASH,
 	// ^
 	CARET,
 	// %
@@ -91,8 +93,8 @@ const static char* TOKEN_NAMES[] = {
 	"COMMA",		"DOT",			 "OPEN_PAREN", "CLOSE_PAREN", "OPEN_BRACE", "CLOSE_BRACE",
 	"OPEN_BRACKET", "CLOSE_BRACKET", "AT",		   "POUND",		  "TILDE",		"QUESTION",
 	"COLON",		"DOLLAR",		 "EQ",		   "BANG",		  "LESS",		"GREAT",
-	"MINUS",		"AND",			 "PIPE",	   "PLUS",		  "STAR",		"CARET",
-	"PERCENT",		"WHITESPACE",	 "IDENT",	   "_EOF",		  "UNKNOWN",
+	"MINUS",		"AND",			 "PIPE",	   "PLUS",		  "STAR",		"SLASH",
+	"CARET",		"PERCENT",		 "WHITESPACE", "IDENT",		  "_EOF",		"UNKNOWN",
 };
 #endif
 
@@ -140,33 +142,34 @@ union token_info {
 };
 struct token {
   private:
-	token_kind kind;
-	size_t len;
+	token_kind m_kind;
+	size_t m_len;
 	token_info info;
 
   public:
-	token() : kind(UNKNOWN), len(0) {}
-	token(token_kind k, size_t len) : kind{k}, len{len} {}
-	token(token_kind k, size_t len, token_info info) : kind{k}, len{len}, info{info} {}
+	token() : m_kind(UNKNOWN), m_len(0) {}
+	token(token_kind k, size_t len) : m_kind{k}, m_len{len} {}
+	token(token_kind k, size_t len, token_info info) : m_kind{k}, m_len{len}, info{info} {}
 	~token() {}
 
 	// Get
-	token_kind tkn_kind() const& { return this->kind; }
-	size_t tkn_len() const& { return this->len; }
+	token_kind kind() const& { return this->m_kind; }
+	size_t len() const& { return this->m_len; }
 	// Set
-	void add_len(size_t add) { this->len += add; }
+	void add_len(size_t add) { this->m_len += add; }
 
 	std::optional<comment_kind> comment_info() const& { return this->info.comment(); }
 	std::optional<numeric_base_kind> num_base_info() const& { return this->info.base(); }
 
-
-	friend bool operator==(const token& lhs, const token& rhs) { return lhs.len == rhs.len && lhs.kind == rhs.kind; }
+	friend bool operator==(const token& lhs, const token& rhs) {
+		return lhs.m_len == rhs.m_len && lhs.m_kind == rhs.m_kind;
+	}
 	friend bool operator!=(const token& lhs, const token& rhs) { return !(lhs == rhs); }
 
 #ifdef DEBUGGING
 	std::string str() const& {
 		std::string info;
-		switch (tkn_kind()) {
+		switch (this->kind()) {
 			case INT_LIT:
 			case FLOAT_LIT:
 				// Safe to "unwrap" value of std::optional since we know all int/floats have
@@ -181,8 +184,8 @@ struct token {
 				info = "";
 				break;
 		}
-		return std::string("token(") + TOKEN_NAMES[tkn_kind()] + ", " + std::to_string(tkn_len())
-			+ info + ")";
+		return std::string("token(") + TOKEN_NAMES[this->kind()] + ", "
+			+ std::to_string(this->len()) + info + ")";
 	}
 #endif
 };
@@ -201,7 +204,8 @@ class tokenizer {
 	std::optional<size_t> eat_hex_digits() noexcept;
 	std::optional<size_t> eat_float_expo() noexcept;
 
-	result<token, std::string> comment() noexcept;
+	result<token, std::string> single_line_comment() noexcept;
+	result<token, std::string> multi_line_comment() noexcept;
 	result<token, std::string> whitespace() noexcept;
 	result<token, std::string> identifier() noexcept;
 	result<token, std::string> numeric_lit() noexcept;
