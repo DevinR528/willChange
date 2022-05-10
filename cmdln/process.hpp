@@ -1,5 +1,6 @@
 
 // vim: set tabstop=4 smarttab
+
 #pragma once
 
 struct cmdln_flags;
