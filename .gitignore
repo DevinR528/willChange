@@ -1,4 +1,5 @@
-.depend
 build/
-include/
-.vscode
+.vscode/
+# Some dumb vscode thing  (that clearly should be in the .vscode folder but is not)
+null.d
+junk/
