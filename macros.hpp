@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cassert>
+
 #define TODO(msg) \
 	assert(!msg); \
 	exit(1)

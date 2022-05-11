@@ -1,81 +1,90 @@
 
+// vim: set tabstop=4 smarttab
+
+#pragma once
+
+namespace zade {
+
 enum token_kind {
 	// A comment token
-	COMMENT,
+	t_COMMENT,
 	// An integer literal
-	INT_LIT,
+	t_INT_LIT,
 	// A float literal
-	FLOAT_LIT,
+	t_FLOAT_LIT,
 	// A char literal
-	CHAR_LIT,
+	t_CHAR_LIT,
 	// A string literal
-	STR_LIT,
+	t_STR_LIT,
 	// ;
-	SEMI,
+	t_SEMI,
 	// ,
-	COMMA,
+	t_COMMA,
 	// .
-	DOT,
+	t_DOT,
 	// (
-	OPEN_PAREN,
+	t_OPEN_PAREN,
 	// )
-	CLOSE_PAREN,
+	t_CLOSE_PAREN,
 	// {
-	OPEN_BRACE,
+	t_OPEN_BRACE,
 	// }
-	CLOSE_BRACE,
+	t_CLOSE_BRACE,
 	// [
-	OPEN_BRACKET,
+	t_OPEN_BRACKET,
 	// ]
-	CLOSE_BRACKET,
+	t_CLOSE_BRACKET,
 	// @
-	AT,
+	t_AT,
 	// #
-	POUND,
+	t_POUND,
 	// ~
-	TILDE,
+	t_TILDE,
 	// ?
-	QUESTION,
+	t_QUESTION,
 	// :
-	COLON,
+	t_COLON,
 	// $
-	DOLLAR,
+	t_DOLLAR,
 	// =
-	EQ,
+	t_EQ,
 	// !
-	BANG,
+	t_BANG,
 	// <
-	LESS,
+	t_LESS,
 	// >
-	GREAT,
+	t_GREAT,
 	// -
-	MINUS,
+	t_MINUS,
 	// &
-	AND,
+	t_AND,
 	// |
-	PIPE,
+	t_PIPE,
 	// +
-	PLUS,
+	t_PLUS,
 	// *
-	STAR,
+	t_STAR,
 	// "/""
-	SLASH,
+	t_SLASH,
 	// ^
-	CARET,
+	t_CARET,
 	// %
-	PERCENT,
+	t_PERCENT,
 	// Any whitespace
-	WHITESPACE,
+	t_WHITESPACE,
 	// Any identifier, this includes keywords
-	IDENT,
+	t_IDENT,
 	// End of file
-	_EOF,
+	t__EOF,
 	// This is incase we want error tolerance
-	UNKNOWN,
+	t_UNKNOWN,
+
+	// ... //
+	number_of_tokens,
 };
 
 #ifdef DEBUGGING
-const static char* TOKEN_NAMES[] = {
+const static char* TOKEN_NAMES[number_of_tokens] = {
 	"COMMENT",		"INT_LIT",		 "FLOAT_LIT",  "CHAR_LIT",	  "STR_LIT",	"SEMI",
 	"COMMA",		"DOT",			 "OPEN_PAREN", "CLOSE_PAREN", "OPEN_BRACE", "CLOSE_BRACE",
 	"OPEN_BRACKET", "CLOSE_BRACKET", "AT",		   "POUND",		  "TILDE",		"QUESTION",
@@ -85,3 +94,4 @@ const static char* TOKEN_NAMES[] = {
 };
 #endif
 
+}  // namespace zade

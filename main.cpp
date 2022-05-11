@@ -5,39 +5,37 @@
 #include <fstream>
 #include <filesystem>
 
-// #include "print.hpp"
-// #include "macros.hpp"
-#include "result.hpp"
-// #include "parse/tokenizer/tokenizer.hpp"
+#include "cmdln/flags.hpp"
+#include "cmdln/process.hpp"
+#include "threads/pool.hpp"
+#include "prio_queue/queue.hpp"
 
 auto main(int argc, char const* argv[]) -> int {
-	
-	int code = 0;
-	
+
 	std::string error_msg;
 
-    cmdln_flags* flags = NULL;
-	pqueue* pqueue = NULL;
-	tpool* tpool = NULL;
-	
+    zade::cmdln_flags* flags = nullptr;
+	zade::pqueue<int>* pqueue = nullptr;
+	zade::tpool* tpool = nullptr;
+
 	bool error = false
-		?: cmdln_process(flags, argc, argv)
-		?: new_pqueue(pqueue)
-		?: new_thread_pool(tpool, pqueue, flags->num_jobs, &flags->options)
-		?: tpool->add_parse_phases(flags->source_file)
+		? true : zade::cmdln_process(flags, argc, argv)
+		? true : zade::new_pqueue(pqueue)
+		? true : zade::new_thread_pool(tpool, pqueue, flags->num_jobs, flags->opts)
+		? true : tpool->add_parse_phases(flags->source_file)
 			// parse phase:
 				// reading tokens, stream into AST
 				// invoke type checker phase
 				// add_type_check_task()
-			
+
 			// type checker phase:
 				// ...
 				// invoke reference resolution
 				// add_reference resolution_task()
-		
+
 			// reference resolution
 				// ...
-			
+
 			// ...
 
 			// link phase:
@@ -50,8 +48,8 @@ auto main(int argc, char const* argv[]) -> int {
 			// interpret phase:
 
 			// print asm phase:
-			
-		?: tpool->join()
+
+		? true : tpool->join()
 		 ;
 
 	tpool->~tpool();
@@ -76,27 +74,27 @@ auto main(int argc, char const* argv[]) -> int {
 	#if 0
 	if (!(result<cmdln_flags*,std::string> res = cmdln_process(&flags, argc, argv)))
 	{
-		
+
 	}
 	else
 	{
 
 	}
-	
+
 	if (cond) {
 
 	} else while () {}
-	
+
 	if (!res.has_value()) {
 		fprintf(stderr, "!!!");
 		code = 1;
 	} else {
-		
+
 		result<pqueue*,std::string> res = new_pqueue();
 
 		TODO; // setup prioity queue
 	}
-	
+
 	if (res)
 	{
 		TODO; // setup thread pool
@@ -127,16 +125,16 @@ auto main(int argc, char const* argv[]) -> int {
 	if (strequals(argv[1], "-i")) {
 		filename = argv[2];
 	} else {
-	
+
 		zade::print(
 			"expected input file\n"
 			"usage: zadec -i path/to/file.zd [-o out/file]\n"
 			"found: ",
 			argv[1]);
-		
+
 		return 0;
 	}
-	
+
 	auto tok = zade::tokenizer(filename);
 	// zade::print(tok.content());
 

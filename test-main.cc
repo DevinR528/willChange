@@ -1,7 +1,10 @@
 
 // vim: set tabstop=4 smarttab
 
-#include "parse/lex.hpp"
+#include "macros.hpp"
+#include "phases/parse/scanner/token/token.hpp"
+#include "phases/parse/scanner/token_kind.hpp"
+#include "result.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -12,9 +15,12 @@
 typedef ptrdiff_t Size;
 template<typename Type, Size n> Size count_of(Type (&)[n]) { return n; }
 
+zade::result<std::vector<zade::token>, std::string> tokenizer(std::string in) {
+	TODO("make zade::tokenizer");
+}
+
 bool lex_in(std::string input, std::vector<zade::token> expected) {
-	auto tok = zade::tokenizer(input);
-	auto res = tok.lex_input();
+	auto res = tokenizer(input);
 	if (res.has_value() && std::equal(expected.begin(), expected.end(), res.value().begin())) {
 		return 0;
 	} else {
@@ -41,8 +47,8 @@ struct test {
 };
 
 const test tests[] = {
-	{"extern", std::vector{zade::token{zade::IDENT, 6}}},
-	{"#include", std::vector{zade::token{zade::POUND, 1}, zade::token{zade::IDENT, 7}}},
+	{"extern", std::vector{zade::token{zade::t_IDENT}}},
+	{"#include", std::vector{zade::token{zade::t_POUND}, zade::token{zade::t_IDENT}}},
 };
 
 int main() {

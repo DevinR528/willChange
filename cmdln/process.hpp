@@ -3,6 +3,10 @@
 
 #pragma once
 
-struct cmdln_flags;
+#include "flags.hpp"
+
+namespace zade {
 
 bool cmdln_process(struct cmdln_flags*& flags, int argc, const char** argvs);
+
+}

@@ -1,27 +1,13 @@
 
-#include "token_kind.h"
+// vim: set tabstop=4 smarttab
 
-static enum {
-    s_error,
+#include "next.hpp"
+#include "token_kind.hpp"
 
-    s_whitespace,
+namespace zade {
 
-    s_start,
-
-    s_reading_whitespace,
-
-    number_of_states,
-} lookup[number_of_states][127] = {
-    [s_start][' ' ] = s_reading_whitespace,
-    [s_start]['\t'] = s_reading_whitespace,
-    [s_start]['\n'] = s_reading_whitespace,
-        [s_reading_whitespace][ALL] = s_whitespace,
-        [s_reading_whitespace][' ' ] = s_reading_whitespace,
-        [s_reading_whitespace]['\t'] = s_reading_whitespace,
-        [s_reading_whitespace]['\n'] = s_reading_whitespace,
-};
-
-int next_token()
-{
-    
+int next_token() {
+	return STATES[0][0];
 }
+
+}  //  namespace zade
